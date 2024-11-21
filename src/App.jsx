@@ -84,7 +84,7 @@ function App() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
-            Office Lucky Draw
+            OS team roster draw
             {gameState.isHost && (
               <span className="flex items-center text-yellow-500">
                 <Crown size={24} />
