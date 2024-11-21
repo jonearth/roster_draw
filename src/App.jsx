@@ -226,13 +226,7 @@ function App() {
           </div>
         )}
 
-        {/* Winner Display - Visible to all */}
-        {currentWinner && (
-          <div className="p-4 bg-yellow-100 rounded-lg flex items-center gap-2 my-4">
-            <Trophy className="text-yellow-500" />
-            <span>Latest Winner: <strong>{currentWinner}</strong></span>
-          </div>
-        )}
+// In your App.jsx, find the Winners List section and replace it with this:
 
         {/* Winners List - Visible to all */}
         {gameState.winners.length > 0 && (
@@ -242,13 +236,22 @@ function App() {
               {gameState.winners.map((winner, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <Trophy size={16} className="text-yellow-500" />
-                  <span>{winner}</span>
+                  <span>Person #{gameState.winners.length - index}: {winner}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
-      </div>
+
+        {/* Latest Winner Display */}
+        {currentWinner && (
+          <div className="p-4 bg-yellow-100 rounded-lg flex items-center gap-2 my-4">
+            <Trophy className="text-yellow-500" />
+            <span>Latest Winner (Person #{gameState.winners.length}): <strong>{currentWinner}</strong></span>
+          </div>
+        )}
+     
+	</div>
     </div>
   );
 }
