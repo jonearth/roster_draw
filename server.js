@@ -122,6 +122,20 @@ io.on('connection', (socket) => {
       });
     }
   });
+
+  // Handle participant removal
+  socket.on('removeParticipant', (name) => {
+    if (socket.id === gameState.hostSocketId) {
+      gameState.participants = gameState.participants.filter(p => p !== name);
+      io.sockets.sockets.forEach((clientSocket) => {
+        clientSocket.emit('gameState', {
+          ...gameState,
+          isHost: clientSocket.id === gameState.hostSocketId
+        });
+      });
+    }
+  });
+
 });
 
 const PORT = process.env.PORT || 3000;

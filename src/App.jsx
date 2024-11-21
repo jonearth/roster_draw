@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, RefreshCw, UserPlus, Gift, Crown } from 'lucide-react';
+import { Trophy, RefreshCw, UserPlus, Gift, Crown, Plus, Trash2 } from 'lucide-react';
 import { io } from 'socket.io-client';
 import QRCode from 'qrcode.react';
 
@@ -18,6 +18,7 @@ function App() {
   const [currentWinner, setCurrentWinner] = useState(null);
   const [showQR, setShowQR] = useState(true);
   const [joined, setJoined] = useState(false);
+  const [showHostAdd, setShowHostAdd] = useState(false);
 
   useEffect(() => {
     // Listen for game state updates
@@ -45,6 +46,19 @@ function App() {
     }
   };
 
+  const handleHostAddParticipant = () => {
+    if (currentName.trim() && gameState.isHost) {
+      socket.emit('addParticipant', currentName.trim());
+      setCurrentName('');
+    }
+  };
+
+  const handleRemoveParticipant = (name) => {
+    if (gameState.isHost) {
+      socket.emit('removeParticipant', name);
+    }
+  };
+
   const handleDraw = () => {
     if (gameState.isHost) {
       socket.emit('draw');
@@ -57,6 +71,7 @@ function App() {
       setCurrentWinner(null);
       setShowQR(true);
       setJoined(false);
+      setShowHostAdd(false);
     }
   };
 
@@ -69,7 +84,7 @@ function App() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
-             OS Roster Draw
+            Office Lucky Draw
             {gameState.isHost && (
               <span className="flex items-center text-yellow-500">
                 <Crown size={24} />
@@ -80,7 +95,43 @@ function App() {
           <p className="text-gray-600">Remaining Prizes: {gameState.remainingPrizes}</p>
         </div>
 
-        {!joined && (
+        {/* Host Controls */}
+        {gameState.isHost && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowHostAdd(!showHostAdd)}
+              className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center justify-center gap-2"
+            >
+              <Plus size={20} />
+              {showHostAdd ? 'Hide Add Panel' : 'Add Participants'}
+            </button>
+
+            {showHostAdd && (
+              <div className="mt-4 space-y-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={currentName}
+                    onChange={(e) => setCurrentName(e.target.value)}
+                    placeholder="Enter participant name"
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    maxLength={30}
+                  />
+                  <button
+                    onClick={handleHostAddParticipant}
+                    disabled={!currentName.trim() || gameState.participants.length >= 15}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 flex items-center gap-2"
+                  >
+                    <UserPlus size={20} />
+                    Add
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!gameState.isHost && !joined && (
           <div className="text-center space-y-4">
             <QRCode value={currentUrl} size={256} className="mx-auto" />
             <button
@@ -92,7 +143,7 @@ function App() {
           </div>
         )}
 
-        {!joined && !showQR && (
+        {!gameState.isHost && !joined && !showQR && (
           <div className="flex gap-2 mb-6">
             <input
               type="text"
@@ -130,9 +181,19 @@ function App() {
                 }`}
               >
                 <span>{name}</span>
-                {gameState.winners.includes(name) && (
-                  <Trophy size={16} className="text-yellow-500" />
-                )}
+                <div className="flex items-center gap-1">
+                  {gameState.winners.includes(name) && (
+                    <Trophy size={16} className="text-yellow-500" />
+                  )}
+                  {gameState.isHost && !gameState.winners.includes(name) && (
+                    <button
+                      onClick={() => handleRemoveParticipant(name)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
