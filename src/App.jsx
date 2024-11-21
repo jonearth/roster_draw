@@ -235,7 +235,7 @@ function App() {
               {gameState.winners.map((winner, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <Trophy size={16} className="text-yellow-500" />
-                  <span>Person #{gameState.winners.length - index}: {winner}</span>
+                  <span>Person #{index + 1}: {winner}</span>
                 </div>
               ))}
             </div>
