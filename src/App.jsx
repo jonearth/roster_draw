@@ -226,7 +226,6 @@ function App() {
           </div>
         )}
 
-// In your App.jsx, find the Winners List section and replace it with this:
 
         {/* Winners List - Visible to all */}
         {gameState.winners.length > 0 && (
